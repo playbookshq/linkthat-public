@@ -34,7 +34,7 @@ new class extends Component {
 
                 <div class="space-y-4">
                     @foreach($linkPage->links()->orderBy('order')->where('is_visible', true)->get() as $link)
-                        <x-card class="transition-colors duration-200 bg-white hover:bg-gray-100">
+                        <x-card class="transition-colors duration-200 bg-white hover:bg-zinc-100 dark:hover:bg-zinc-800">
                             <a href="{{ $link->url }}" target="_blank" rel="noopener noreferrer" class="block w-full">
                                 <x-card.content class="p-0">
                                     <div class="flex items-center">
@@ -46,7 +46,7 @@ new class extends Component {
                                         <div class="flex-grow">
                                             <span class="text-lg font-medium">{{ $link->title }}</span>
                                             @if($link->description)
-                                                <p class="text-sm text-gray-600">
+                                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
                                                     {{ $link->description }}
                                                 </p>
                                             @endif

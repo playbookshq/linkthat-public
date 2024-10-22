@@ -7,7 +7,7 @@
 $classes = trim(match ($variant) {
     'ghost' => 'no-underline hover:underline text-zinc-800',
     'subtle' => 'no-underline text-zinc-500 hover:text-zinc-800',
-    default => 'underline text-zinc-800',
+    default => 'underline text-zinc-800 dark:text-zinc-200',
 });
 
 $classes = 'inline text-inherit font-medium ' . $classes;

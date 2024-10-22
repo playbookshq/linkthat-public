@@ -83,7 +83,7 @@ new class extends Component {
                     </div>
                 </div>
 
-                <x-form wire:submit="save" class="space-y-4">
+                <x-form wire:submit="save">
                     <x-card>
                         <x-card.content>
                             <x-form.item>

@@ -45,7 +45,7 @@ new class extends Component {
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen space-y-6 bg-white">
+<body class="min-h-screen space-y-6 bg-white dark:bg-zinc-900">
     <x-ui.header />
 
     <div class="container mx-auto max-w-7xl">

@@ -76,7 +76,7 @@ new class extends Component {
                             @foreach($linkPages as $linkPage)
                                 <x-table.row>
                                     <x-table.cell>
-                                        <a href="{{ route('link-pages.edit', ['id' => $linkPage->id]) }}" class="text-blue-600 hover:underline"
+                                        <a href="{{ route('link-pages.edit', ['id' => $linkPage->id]) }}" class="text-blue-600 dark:text-blue-400 hover:underline"
                                         wire:navigate
                                             >
                                             {{ $linkPage->title }}
@@ -89,14 +89,14 @@ new class extends Component {
                                                 @if($link->type === 'custom' && $link->icon)
                                                     <img src="{{ $link->icon }}" alt="{{ $link->title }} icon" class="text-black size-5">
                                                 @elseif($link->type === 'social' && $link->icon)
-                                                    <x-dynamic-component :component="'icons.' . $link->icon" class="text-black size-5" />
+                                                    <x-dynamic-component :component="'icons.' . $link->icon" class="text-black dark:text-white size-5" />
                                                 @endif
                                             @endforeach
                                         </div>
                                     </x-table.cell>
                                     <x-table.cell>
                                         <x-modal.trigger :name="'confirm-linkpage-deletion-' . $linkPage->id">
-                                            <x-button variant="danger">
+                                            <x-button variant="destructive">
                                                 Delete
                                             </x-button>
                                         </x-modal.trigger>

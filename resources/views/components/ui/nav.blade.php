@@ -1,3 +1,16 @@
+<?php
+
+use Livewire\Volt\Component;
+
+new class extends Component {
+    public function logout()
+    {
+        auth()->logout();
+        return redirect()->route('login');
+    }
+};
+?>
+
 <div class="items-center justify-between hidden w-full mr-4 lg:flex">
     <a
         class="flex items-center mr-6 space-x-2"
@@ -9,32 +22,37 @@
         </div>
     </a>
     <nav class="flex items-center gap-4 text-sm lg:gap-6">
+        @if(auth()->check())
         <a
-            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
             wire:navigate
             href="{{ route('dashboard') }}"
         >Dashboard</a>
         <a
-            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
             wire:navigate
             href="/"
         >Example 1</a>
         <a
-            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
             wire:navigate
             href="/"
         >Example 2</a>
         <a
-            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
             wire:navigate
             href="/"
         >Example 3</a>
         <a
-            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
             wire:navigate
             href="/"
+<<<<<<< Updated upstream
         >Example 4</a>
         @if(auth()->check())
+=======
+        >Example 4</a> --}}
+>>>>>>> Stashed changes
             <x-dropdown-menu>
                 <x-dropdown-menu.trigger variant="ghost" class="flex items-center justify-between gap-2">
                     <span>{{ auth()->user()->name }}</span>
@@ -54,6 +72,12 @@
                     </x-dropdown-menu.content>
                 @endvolt
             </x-dropdown-menu>
+        @else
+            <a
+                class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-foreground/80 text-foreground/60"
+                wire:navigate
+                href="{{ route('login') }}"
+            >Login</a>
         @endif
     </nav>
 </div>
