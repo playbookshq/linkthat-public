@@ -47,40 +47,69 @@ new class extends Component {
 
         Toaster::success('LinkPage updated successfully!');
     }
+
+    public function getPublicProfileUrlProperty()
+    {
+        return route('public-link-page', ['username' => $this->linkPage->username]);
+    }
+
+    public function getDashboardUrlProperty()
+    {
+        return route('dashboard');
+    }
 };
 
 ?>
 
 <x-layouts.app>
     @volt('pages.link-pages.edit')
-        <div>
-            <h1 class="mb-4 text-2xl font-bold">Edit LinkPage: {{ $linkPage->username }}</h1>
+        <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b">
+            <div class="w-full max-w-md">
+                <div class="mb-8 text-center">
+                    <h1 class="mb-2 text-3xl font-bold">Edit LinkPage: {{ $linkPage->username }}</h1>
+                    <div class="space-x-4">
+                        <a href="{{ $this->dashboardUrl }}" wire:navigate class="text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700">
+                            Back to Dashboard
+                        </a>
+                        <a href="{{ $this->publicProfileUrl }}" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700">
+                            View Public Profile
+                        </a>
+                    </div>
+                </div>
 
-            <x-form wire:submit="save">
-                <x-form.item>
-                    <x-label for="title">Title</x-label>
-                    <x-input wire:model="title" id="title" type="text" />
-                    <x-form.message for="title" />
-                </x-form.item>
+                <x-form wire:submit="save" class="space-y-4">
+                    <x-card>
+                        <x-card.content>
+                            <x-form.item>
+                                <x-label for="title">Title</x-label>
+                                <x-input wire:model="title" id="title" type="text" />
+                                <x-form.message for="title" />
+                            </x-form.item>
 
-                <x-form.item>
-                    <x-label for="description">Description</x-label>
-                    <x-textarea wire:model="description" id="description" />
-                    <x-form.message for="description" />
-                </x-form.item>
+                            <x-form.item>
+                                <x-label for="description">Description</x-label>
+                                <x-textarea wire:model="description" id="description" />
+                                <x-form.message for="description" />
+                            </x-form.item>
 
-                <x-form.item>
-                    <x-label for="theme">Theme</x-label>
-                    <x-select wire:model="theme" id="theme">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                    </x-select>
-                    <x-form.message for="theme" />
-                </x-form.item>
+                            <x-form.item>
+                                <x-label for="theme">Theme</x-label>
+                                <x-select wire:model="theme" id="theme">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                </x-select>
+                                <x-form.message for="theme" />
+                            </x-form.item>
 
-                <x-button type="submit">Update LinkPage</x-button>
-            </x-form>
-            <livewire:link-manager :link-page="$linkPage" />
+                            <x-button type="submit" class="w-full">Update LinkPage</x-button>
+                        </x-card.content>
+                    </x-card>
+                </x-form>
+
+                <div class="mt-8">
+                    <livewire:link-manager :link-page="$linkPage" />
+                </div>
+            </div>
         </div>
     @endvolt
 </x-layouts.app>

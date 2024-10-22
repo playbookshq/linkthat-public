@@ -20,9 +20,6 @@ new class extends Component {
     #[Rule('nullable|string|max:1000')]
     public $description = '';
 
-    #[Rule('required|string|in:light,dark')]
-    public $theme = 'light';
-
     public function mount(SeoService $seo): void
     {
         $seo->setTitle('Create LinkPage')
@@ -53,10 +50,9 @@ new class extends Component {
             'username' => $this->username,
             'title' => $this->title,
             'description' => $this->description,
-            'theme' => $this->theme,
         ]);
 
-        $this->reset(['username', 'title', 'description', 'theme']);
+        $this->reset(['username', 'title', 'description']);
 
         Toaster::success('LinkPage created successfully!');
         $this->redirect(route('link-pages.edit', ['id' => $linkPage->id]), navigate: true);
@@ -67,45 +63,45 @@ new class extends Component {
 
 <x-layouts.app>
     @volt('pages.link-pages.create')
-        <div>
-            <h1 class="mb-4 text-2xl font-bold">Create LinkPage</h1>
+        <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b">
+            <div class="w-full max-w-md">
+                <x-card>
+                    <x-card.header>
+                        <x-card.title>Create LinkPage</x-card.title>
+                        <x-card.description>Create a new LinkPage for your profile.</x-card.description>
+                    </x-card.header>
 
-            <x-form wire:submit="save">
-                <x-form.item>
-                    <x-label for="username">Username</x-label>
-                    <x-input wire:model="username" id="username" type="text" />
-                    <x-form.message for="username" />
-                </x-form.item>
+                    <x-card.content>
+                        <x-form wire:submit="save" class="space-y-4">
+                            <x-form.item>
+                                <x-label for="username">Username</x-label>
+                                <x-input wire:model="username" id="username" type="text" />
+                                <x-form.message for="username" />
+                            </x-form.item>
 
-                <x-form.item>
-                    <x-label for="title">Title</x-label>
-                    <x-input wire:model="title" id="title" type="text" />
-                    <x-form.message for="title" />
-                </x-form.item>
+                            <x-form.item>
+                                <x-label for="title">Title</x-label>
+                                <x-input wire:model="title" id="title" type="text" />
+                                <x-form.message for="title" />
+                            </x-form.item>
 
-                <x-form.item>
-                    <x-label for="description">Description</x-label>
-                    <x-textarea wire:model="description" id="description" />
-                    <x-form.message for="description" />
-                </x-form.item>
+                            <x-form.item>
+                                <x-label for="description">Description</x-label>
+                                <x-textarea wire:model="description" id="description" />
+                                <x-form.message for="description" />
+                            </x-form.item>
 
-                <x-form.item>
-                    <x-label for="theme">Theme</x-label>
-                    <x-select wire:model="theme" id="theme">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                    </x-select>
-                    <x-form.message for="theme" />
-                </x-form.item>
+                            @error('limit')
+                                <x-alert variant="error" class="mt-4">
+                                    {{ $message }}
+                                </x-alert>
+                            @enderror
 
-                @error('limit')
-                    <x-alert variant="error" class="mt-4">
-                        {{ $message }}
-                    </x-alert>
-                @enderror
-
-                <x-button type="submit">Create LinkPage</x-button>
-            </x-form>
+                            <x-button type="submit" class="w-full">Create LinkPage</x-button>
+                        </x-form>
+                    </x-card.content>
+                </x-card>
+            </div>
         </div>
     @endvolt
 </x-layouts.app>
