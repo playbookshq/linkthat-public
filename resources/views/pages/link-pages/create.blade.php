@@ -58,8 +58,8 @@ new class extends Component {
 
         $this->reset(['username', 'title', 'description', 'theme']);
 
-        $this->dispatch('link-page-created', linkPageId: $linkPage->id);
         Toaster::success('LinkPage created successfully!');
+        $this->redirect(route('link-pages.edit', ['id' => $linkPage->id]), navigate: true);
     }
 };
 

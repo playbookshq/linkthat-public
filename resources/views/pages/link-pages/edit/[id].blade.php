@@ -80,6 +80,7 @@ new class extends Component {
 
                 <x-button type="submit">Update LinkPage</x-button>
             </x-form>
+            <livewire:link-manager :link-page="$linkPage" />
         </div>
     @endvolt
 </x-layouts.app>

@@ -11,13 +11,14 @@ return new class extends Migration
         Schema::create('links', function (Blueprint $table) {
             $table->id();
             $table->foreignId('link_page_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['social', 'custom']);
+            $table->string('type');
             $table->string('url');
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('icon')->nullable();
             $table->integer('order')->default(0);
             $table->boolean('is_visible')->default(true);
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
     }
