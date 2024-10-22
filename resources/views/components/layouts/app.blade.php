@@ -48,7 +48,7 @@ new class extends Component {
 <body class="min-h-screen space-y-6 bg-white">
     <x-ui.header />
 
-    <div class="mx-auto max-w-7xl">
+    <div class="container mx-auto max-w-7xl">
         <div class="self-stretch flex-1 max-md:pt-6">
             {{ $slot }}
         </div>
