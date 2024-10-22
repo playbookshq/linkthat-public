@@ -109,7 +109,7 @@ new class extends Component {
 }; ?>
 <x-layouts.app>
     @volt('pages.profile.update')
-        <div class="space-y-6">
+        <div class="max-w-3xl p-3 mx-auto space-y-6">
             <x-card>
                 <form wire:submit="updateProfileInformation" class="space-y-6">
                     <div>

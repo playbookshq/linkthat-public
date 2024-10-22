@@ -21,7 +21,7 @@ new class extends Component {
     #[Rule('nullable|string|max:1000')]
     public $description = '';
 
-    #[Rule('required|string|in:light,dark')]
+    #[Rule('nullable|string')]
     public $theme = 'light';
 
     public function mount($id, SeoService $seo): void
@@ -32,8 +32,8 @@ new class extends Component {
         $this->description = $this->linkPage->description;
         $this->theme = $this->linkPage->theme;
 
-        $seo->setTitle("Edit LinkPage: {$this->linkPage->username}")
-            ->setDescription('Edit your LinkPage settings.');
+        $seo->setTitle("Edit link page: {$this->linkPage->username}")
+            ->setDescription('Edit your link page settings.');
     }
 
     public function save()
@@ -42,11 +42,10 @@ new class extends Component {
 
         $this->linkPage->update([
             'title' => $this->title,
-            'description' => $this->description,
-            'theme' => $this->theme,
+            'description' => $this->description
         ]);
 
-        Toaster::success('LinkPage updated successfully!');
+        Toaster::success('Link page updated successfully!');
     }
 
     public function getPublicProfileUrlProperty()
@@ -69,10 +68,10 @@ new class extends Component {
 
 <x-layouts.app>
     @volt('pages.link-pages.edit')
-        <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b">
+        <div class="flex flex-col items-center justify-center p-4 bg-gradient-to-b">
             <div class="w-full max-w-md">
                 <div class="mb-8 text-center">
-                    <h1 class="mb-2 text-3xl font-bold">Edit LinkPage: {{ $linkPage->username }}</h1>
+                    <h1 class="mb-6 text-2xl font-medium">Editing <code class="p-2 font-sans font-normal rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-100">{{ $linkPage->username }}</code></h1>
                     <div class="space-x-4">
                         <a href="{{ $this->dashboardUrl }}" wire:navigate class="text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700">
                             Back to Dashboard
@@ -98,7 +97,7 @@ new class extends Component {
                                 <x-form.message for="description" />
                             </x-form.item>
 
-                            <x-button type="submit" class="w-full">Update LinkPage</x-button>
+                            <x-button type="submit" class="w-full">Update link page &rarr;</x-button>
                         </x-card.content>
                     </x-card>
                 </x-form>

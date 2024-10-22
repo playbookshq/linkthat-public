@@ -37,7 +37,7 @@ new class extends Component {
                         @if($block->type === 'separator')
                             <div class="inline-flex items-center justify-center w-full">
                                 <hr class="w-full h-px my-4 border-0 bg-zinc-200 dark:bg-zinc-700">
-                                <span class="absolute px-3 text-xs font-medium -translate-x-1/2 bg-white text-muted-foreground dark:bg-black left-1/2">
+                                <span class="absolute p-2 text-xs font-medium -translate-x-1/2 bg-white rounded text-muted-foreground dark:bg-zinc-800 left-1/2">
                                     {{ $block->data['text'] }}
                                 </span>
                             </div>

@@ -57,7 +57,8 @@ new class extends Component {
             'data' => [
                 'type' => 'social',
                 'icon' => $platform,
-                'title' => '',
+                'handle' => '',
+                'title' => ucfirst($platform),
                 'description' => '',
                 'url' => '',
             ],
@@ -66,7 +67,8 @@ new class extends Component {
         ]);
 
         $this->loadBlocks();
-        $this->showSocialIcons = false;
+        $this->activeInput = null;
+        $this->dispatch('social-link-added', blockId: $newBlock->id);
         Toaster::success('Social media link added successfully!');
     }
 
@@ -81,17 +83,19 @@ new class extends Component {
         }
 
         $this->validate([
-            "blocks.{$blockIndex}.data.title" => 'required|string|max:255',
+            "blocks.{$blockIndex}.data.title" => 'nullable|string|max:255',
             "blocks.{$blockIndex}.data.description" => 'nullable|string|max:1000',
+            "blocks.{$blockIndex}.data.handle" => 'nullable|string|max:255',
         ]);
 
         $updatedData = array_merge($block->data, [
-            'title' => $this->blocks[$blockIndex]['data']['title'],
-            'description' => $this->blocks[$blockIndex]['data']['description'],
+            'title' => $this->blocks[$blockIndex]['data']['title'] ?? '',
+            'description' => $this->blocks[$blockIndex]['data']['description'] ?? '',
         ]);
 
         if ($block->data['type'] === 'social') {
-            $updatedData['url'] = $this->generateSocialMediaUrl($block->data['icon'], $this->blocks[$blockIndex]['data']['title']);
+            $updatedData['handle'] = $this->blocks[$blockIndex]['data']['handle'] ?? '';
+            $updatedData['url'] = $this->generateSocialMediaUrl($block->data['icon'], $updatedData['handle']);
         }
 
         $block->update([
@@ -194,13 +198,13 @@ new class extends Component {
 
     <div class="flex flex-wrap gap-2 mb-4">
         <x-button wire:click="toggleInput('social')" size="sm">
-            Add Social Link
+            Add social link
         </x-button>
         <x-button wire:click="toggleCustomLinkInput" size="sm">
-            Add Custom URL
+            Add custom link
         </x-button>
         <x-button wire:click="toggleInput('separator')" size="sm">
-            Add Separator
+            Add separator
         </x-button>
     </div>
 
@@ -243,11 +247,11 @@ new class extends Component {
                 @if($block['type'] === 'separator')
                     <div class="relative mb-4 cursor-move" wire:sortable.handle>
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div class="w-full border-t border-gray-300"></div>
+                            <div class="w-full border-t border-gray-300 dark:border-zinc-700"></div>
                         </div>
-                        <div class="relative flex justify-between">
-                            <span class="px-2 text-sm text-gray-500 bg-white">{{ $block['data']['text'] }}</span>
-                            <button wire:click="deleteBlock({{ $block['id'] }})" class="px-2 text-sm text-red-500 bg-white">
+                        <div class="relative flex items-center justify-between">
+                            <span class="p-2 text-sm text-gray-500 bg-white rounded dark:bg-zinc-800 dark:text-zinc-400">{{ $block['data']['text'] }}</span>
+                            <button wire:click="deleteBlock({{ $block['id'] }})" class="p-2 text-sm text-red-500 bg-white rounded dark:bg-zinc-800">
                                 <x-lucide-trash-2 class="w-4 h-4" />
                             </button>
                         </div>
@@ -261,7 +265,13 @@ new class extends Component {
                                 @else
                                     <x-dynamic-component :component="'icons.' . $block['data']['icon']" class="flex-shrink-0 w-5 h-5" />
                                 @endif
-                                <div x-data="{ editingTitle: false, editingDescription: false }" x-id="['block-edit-{{ $block['id'] }}']">
+                                <div x-data="{
+                                    editingTitle: false,
+                                    editingDescription: false,
+                                    editingHandle: {{ $block['data']['type'] === 'social' && empty($block['data']['handle']) ? 'true' : 'false' }}
+                                }"
+                                x-id="['block-edit-{{ $block['id'] }}']"
+                                @social-link-added.window="if ($event.detail.blockId == {{ $block['id'] }}) editingHandle = true">
                                     <div class="flex items-center space-x-2">
                                         <h3 class="font-semibold" x-show="!editingTitle" @click="editingTitle = true">
                                             {{ $block['data']['title'] ?: 'Click to add title' }}
@@ -269,23 +279,41 @@ new class extends Component {
                                         <input
                                             x-show="editingTitle"
                                             x-trap="editingTitle"
-                                            wire:model="blocks.{{ $index }}.data.title"
+                                            wire:model.live="blocks.{{ $index }}.data.title"
                                             wire:change="updateBlock({{ $block['id'] }})"
                                             @click.away="editingTitle = false"
                                             @keydown.enter="editingTitle = false"
                                             :id="$id('block-edit-{{ $block['id'] }}')"
                                             placeholder="Title"
-                                            class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                                            class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
                                         />
                                     </div>
+                                    @if($block['data']['type'] === 'social')
+                                        <div class="flex items-center mt-1 space-x-2">
+                                            <p x-show="!editingHandle" @click="editingHandle = true" class="text-sm text-gray-600 cursor-pointer dark:text-zinc-400">
+                                                {{ $block['data']['handle'] ?: 'Click to add handle' }}
+                                            </p>
+                                            <input
+                                                x-show="editingHandle"
+                                                x-trap="editingHandle"
+                                                wire:model.live="blocks.{{ $index }}.data.handle"
+                                                wire:change="updateBlock({{ $block['id'] }})"
+                                                @click.away="editingHandle = false"
+                                                @keydown.enter="editingHandle = false"
+                                                :id="$id('block-edit-handle-{{ $block['id'] }}')"
+                                                placeholder="Social media handle"
+                                                class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                                            />
+                                        </div>
+                                    @endif
                                     <div class="mt-1">
-                                        <p x-show="!editingDescription" @click="editingDescription = true" class="text-sm text-gray-600 cursor-pointer">
+                                        <p x-show="!editingDescription" @click="editingDescription = true" class="text-sm text-gray-600 cursor-pointer dark:text-zinc-400">
                                             {{ $block['data']['description'] ?: 'Click to add description' }}
                                         </p>
                                         <textarea
                                             x-show="editingDescription"
                                             x-trap="editingDescription"
-                                            wire:model="blocks.{{ $index }}.data.description"
+                                            wire:model.live="blocks.{{ $index }}.data.description"
                                             wire:change="updateBlock({{ $block['id'] }})"
                                             @click.away="editingDescription = false"
                                             :id="$id('block-edit-{{ $block['id'] }}')"

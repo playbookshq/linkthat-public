@@ -36,6 +36,10 @@ new class extends Component {
         <meta property="og:image" content="{{ $seo->getOgImage() }}">
     @endif
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon-light.png') }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('favicon-dark.png') }}" media="(prefers-color-scheme: dark)">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

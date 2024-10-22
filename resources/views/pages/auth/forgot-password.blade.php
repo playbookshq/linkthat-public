@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Masmerise\Toaster\Toaster;
+use App\Services\SeoService;
 
 use function Laravel\Folio\name;
 
@@ -28,7 +29,7 @@ new class extends Component {
 
         if ($status != Password::RESET_LINK_SENT) {
             $this->addError('email', __($status));
-
+            Toaster::error(__($status));
             return;
         }
 
@@ -36,12 +37,25 @@ new class extends Component {
 
         Toaster::success(__($status));
     }
+
+    public function mount(SeoService $seo): void
+    {
+        $seo->setTitle('Reset your Linkthat password')
+            ->setDescription('Reset your Linkthat password.')
+            ->setCanonical(route('password.request'));
+    }
 }; ?>
 
 <x-layouts.auth>
-    <x-card>
-        @volt('pages.auth.forgot-password')
-            <form wire:submit="sendPasswordResetLink" class="space-y-6">
+    @volt('pages.auth.forgot-password')
+    <x-card class="space-y-6">
+            <div class="flex">
+                <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center space-x-2">
+                    <x-logo class="size-4" />
+                    <span class="font-bold">{{config('app.name')}}</span>
+                </a>
+            </div>
+            <form wire:submit.prevent="sendPasswordResetLink" class="space-y-6">
                 <div>
                     <x-heading size="lg">Reset your password</x-heading>
                     <x-subheading>Enter your email to receive a password reset link</x-subheading>
@@ -54,7 +68,7 @@ new class extends Component {
 
                 <div class="space-y-2">
                     <x-button variant="default" class="w-full" type="submit">
-                        {{ __('Email Password Reset Link') }}
+                        {{ __('Send password reset link') }}
                     </x-button>
 
                     <x-button variant="ghost" class="w-full" href="{{ route('login') }}" wire:navigate>
@@ -62,6 +76,6 @@ new class extends Component {
                     </x-button>
                 </div>
             </form>
-        @endvolt
-    </x-card>
+        </x-card>
+    @endvolt
 </x-layouts.auth>

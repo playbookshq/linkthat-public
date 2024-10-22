@@ -23,6 +23,10 @@ $seo = app(SeoService::class);
         <meta property="og:image" content="{{ $seo->getOgImage() }}">
     @endif
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon-light.png') }}" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('favicon-dark.png') }}" media="(prefers-color-scheme: dark)">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,9 +36,11 @@ $seo = app(SeoService::class);
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 
-<body class="flex items-center justify-center max-w-md min-h-screen m-auto bg-white">
-    <div class="w-full">
-        {{ $slot }}
+<body class="min-h-screen bg-white dark:bg-zinc-900">
+    <div class="flex items-center justify-center max-w-md min-h-screen m-auto">
+        <div class="w-full">
+            {{ $slot }}
+        </div>
     </div>
     @persist('toast')
         <x-toaster-hub />

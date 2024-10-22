@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use App\Services\SeoService;
 
 name('register');
 
@@ -36,12 +37,25 @@ new class extends Component {
 
         $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
+
+    public function mount(SeoService $seo): void
+    {
+        $seo->setTitle('Register an account on Linkthat')
+            ->setDescription('Register an account on Linkthat.')
+            ->setCanonical(route('register'));
+    }
 };
 ?>
 
 <x-layouts.auth>
     @volt('pages.auth.register')
-        <x-card>
+        <x-card class="space-y-6">
+            <div class="flex">
+                <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center space-x-2">
+                    <x-logo class="size-4" />
+                    <span class="font-bold">{{config('app.name')}}</span>
+                </a>
+            </div>
             <form wire:submit='register' class="space-y-6">
                 <div>
                     <x-heading size="lg">Register a new account</x-heading>

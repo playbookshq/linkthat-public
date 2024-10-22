@@ -11,7 +11,7 @@
         {{ $attributes->twMerge('peer rounded text-black disabled:cursor-not-allowed disabled:opacity-50') }}
     />
     @if ($label)
-        <label for="{{ $id }}" class="ml-2 text-sm text-gray-700 cursor-pointer">
+        <label for="{{ $id }}" class="ml-2 text-sm text-gray-700 cursor-pointer dark:text-gray-300">
             {{ $label }}
         </label>
     @endif

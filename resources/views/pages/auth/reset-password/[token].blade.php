@@ -10,6 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Volt\Component;
 use Masmerise\Toaster\Toaster;
+use App\Services\SeoService;
 
 use function Laravel\Folio\name;
 
@@ -25,8 +26,12 @@ new class extends Component {
     /**
      * Mount the component.
      */
-    public function mount(string $token): void
+    public function mount(string $token, SeoService $seo): void
     {
+        $seo->setTitle('Reset your Linkthat password')
+            ->setDescription('Reset your Linkthat password.')
+            ->setCanonical(route('password.reset', ['token' => $token]));
+
         $this->token = $token;
 
         $this->email = request()->string('email');
@@ -62,7 +67,7 @@ new class extends Component {
         // redirect them back to where they came from with their error message.
         if ($status != Password::PASSWORD_RESET) {
             $this->addError('email', __($status));
-
+            Toaster::error(__($status));
             return;
         }
 
@@ -76,6 +81,12 @@ new class extends Component {
     <x-card>
         @volt('pages.auth.reset-password')
             <form wire:submit="resetPassword" class="space-y-6">
+                <div class="flex">
+                    <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center space-x-2">
+                        <x-logo class="size-4" />
+                        <span class="font-bold">{{config('app.name')}}</span>
+                    </a>
+                </div>
                 <div>
                     <x-heading size="lg">Reset your password</x-heading>
                     <x-subheading>Enter your new password</x-subheading>

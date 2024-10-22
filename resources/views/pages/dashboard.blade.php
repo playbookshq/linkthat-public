@@ -31,7 +31,7 @@ new class extends Component {
                 $linkPage = LinkPage::findOrFail($this->linkPageToDelete);
 
                 if ($linkPage->user_id !== Auth::id()) {
-                    throw new \Exception('You are not authorized to delete this LinkPage.');
+                    throw new \Exception('You are not authorized to delete this Link page.');
                 }
 
                 // Delete associated links
@@ -43,9 +43,9 @@ new class extends Component {
                 $this->linkPages = Auth::user()->linkPages;
                 $this->linkPageToDelete = null;
 
-                Toaster::success('LinkPage deleted successfully.');
+                Toaster::success('Link page deleted successfully.');
             } catch (\Exception $e) {
-                Toaster::error('Error deleting LinkPage: ' . $e->getMessage());
+                Toaster::error('Error deleting Link page: ' . $e->getMessage());
             }
         }
     }
@@ -55,13 +55,15 @@ new class extends Component {
 
 <x-layouts.app>
     @volt('pages.dashboard')
-        <div>
-            <h1 class="mb-4 text-2xl font-bold">Dashboard</h1>
+        <div class="max-w-3xl p-3 mx-auto">
             <div class="mb-6">
-                <h2 class="mb-2 text-xl font-semibold">Your LinkPages</h2>
-                @if($linkPages->isEmpty())
-                    <p>You haven't created any LinkPages yet.</p>
-                @else
+                <h1 class="text-2xl font-medium">Your link pages</h1>
+                <p class="pt-0 !mt-0 text-zinc-700 dark:text-zinc-400">
+                    Manage all of your link pages with easy drag and drop ordering.
+                </p>
+            </div>
+            <div class="mb-6">
+                @if(!$linkPages->isEmpty())
                     <x-table>
                         <x-slot name="head">
                             <x-table.row>
@@ -85,19 +87,22 @@ new class extends Component {
                                     <x-table.cell>{{ $linkPage->username }}</x-table.cell>
                                     <x-table.cell>
                                         <div class="flex space-x-2">
-                                            @foreach($linkPage->links()->orderBy('order')->where('is_visible', true)->get() as $link)
-                                                @if($link->type === 'custom' && $link->icon)
-                                                    <img src="{{ $link->icon }}" alt="{{ $link->title }} icon" class="text-black size-5">
-                                                @elseif($link->type === 'social' && $link->icon)
-                                                    <x-dynamic-component :component="'icons.' . $link->icon" class="text-black dark:text-white size-5" />
+                                            @foreach($linkPage->blocks()->orderBy('order')->where('is_visible', true)->where('type', 'link')->get() as $block)
+                                                @if($block->data['type'] === 'custom' && isset($block->data['icon']))
+                                                    <img src="{{ $block->data['icon'] }}" alt="{{ $block->data['title'] }} icon" class="text-black size-5">
+                                                @elseif($block->data['type'] === 'social' && isset($block->data['icon']))
+                                                    <x-dynamic-component :component="'icons.' . $block->data['icon']" class="text-black dark:text-white size-5" />
                                                 @endif
                                             @endforeach
                                         </div>
                                     </x-table.cell>
                                     <x-table.cell>
                                         <x-modal.trigger :name="'confirm-linkpage-deletion-' . $linkPage->id">
-                                            <x-button variant="destructive">
-                                                Delete
+                                            <x-button
+                                            variant="destructive"
+                                            size="sm"
+                                            >
+                                                Delete <x-lucide-trash-2 class="ml-1 size-3" />
                                             </x-button>
                                         </x-modal.trigger>
                                     </x-table.cell>
@@ -109,7 +114,7 @@ new class extends Component {
             </div>
 
             <x-button tag="a" href="{{ route('link-pages.create') }}">
-                Create New LinkPage
+                Create link page &rarr;
             </x-button>
 
             @foreach($linkPages as $linkPage)
