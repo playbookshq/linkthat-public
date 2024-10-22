@@ -62,26 +62,49 @@ new class extends Component {
                 @if($linkPages->isEmpty())
                     <p>You haven't created any LinkPages yet.</p>
                 @else
-                    <div class="space-y-4">
-                        @foreach($linkPages as $linkPage)
-                            <x-card>
-                                <div>
-                                    <h3 class="font-semibold">{{ $linkPage->title }}</h3>
-                                    <p class="text-sm text-gray-600">{{ $linkPage->username }}</p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <x-button tag="a" href="{{ route('link-pages.edit', ['id' => $linkPage->id]) }}">
-                                        Edit
-                                    </x-button>
-                                    <x-modal.trigger :name="'confirm-linkpage-deletion-' . $linkPage->id">
-                                        <x-button variant="danger">
-                                            Delete
-                                        </x-button>
-                                    </x-modal.trigger>
-                                </div>
-                            </x-card>
-                        @endforeach
-                    </div>
+                    <x-table>
+                        <x-slot name="head">
+                            <x-table.row>
+                                <x-table.heading>Title</x-table.heading>
+                                <x-table.heading>Username</x-table.heading>
+                                <x-table.heading>Icons</x-table.heading>
+                                <x-table.heading>Actions</x-table.heading>
+                            </x-table.row>
+                        </x-slot>
+
+                        <x-table.body>
+                            @foreach($linkPages as $linkPage)
+                                <x-table.row>
+                                    <x-table.cell>
+                                        <a href="{{ route('link-pages.edit', ['id' => $linkPage->id]) }}" class="text-blue-600 hover:underline"
+                                        wire:navigate
+                                            >
+                                            {{ $linkPage->title }}
+                                        </a>
+                                    </x-table.cell>
+                                    <x-table.cell>{{ $linkPage->username }}</x-table.cell>
+                                    <x-table.cell>
+                                        <div class="flex space-x-2">
+                                            @foreach($linkPage->links()->orderBy('order')->where('is_visible', true)->get() as $link)
+                                                @if($link->type === 'custom' && $link->icon)
+                                                    <img src="{{ $link->icon }}" alt="{{ $link->title }} icon" class="text-black size-5">
+                                                @elseif($link->type === 'social' && $link->icon)
+                                                    <x-dynamic-component :component="'icons.' . $link->icon" class="text-black size-5" />
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </x-table.cell>
+                                    <x-table.cell>
+                                        <x-modal.trigger :name="'confirm-linkpage-deletion-' . $linkPage->id">
+                                            <x-button variant="danger">
+                                                Delete
+                                            </x-button>
+                                        </x-modal.trigger>
+                                    </x-table.cell>
+                                </x-table.row>
+                            @endforeach
+                        </x-table.body>
+                    </x-table>
                 @endif
             </div>
 
