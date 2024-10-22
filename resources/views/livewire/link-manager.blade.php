@@ -21,7 +21,10 @@ new class extends Component {
 
     public function loadLinks()
     {
-        $this->links = $this->linkPage->links()->orderBy('order')->get()->toArray();
+        $this->links = $this->linkPage->links()
+            ->orderBy('order')
+            ->get(['id', 'type', 'url', 'title', 'description', 'icon', 'order', 'is_visible'])
+            ->toArray();
     }
 
     public function handleNewLink($linkId)
@@ -44,6 +47,7 @@ new class extends Component {
             'title' => '',
             'description' => '',
             'order' => count($this->links),
+            'is_visible' => true,
         ]);
 
         $this->loadLinks();
@@ -88,13 +92,12 @@ new class extends Component {
         };
     }
 
-    public function updateLinkOrder($orderedIds)
+    public function updateLinkOrder($list)
     {
-        foreach ($orderedIds as $order => $id) {
-            Link::where('id', $id)->update(['order' => $order]);
+        foreach ($list as $item) {
+            Link::where('id', $item['value'])->update(['order' => $item['order']]);
         }
         $this->loadLinks();
-        Toaster::success('Link order updated successfully!');
     }
 
     public function deleteLink($linkId)
@@ -102,6 +105,23 @@ new class extends Component {
         Link::destroy($linkId);
         $this->loadLinks();
         Toaster::success('Link deleted successfully!');
+    }
+
+    public function toggleLinkVisibility($linkId)
+    {
+        $link = Link::findOrFail($linkId);
+        $linkIndex = array_search($linkId, array_column($this->links, 'id'));
+
+        if ($linkIndex === false) {
+            Toaster::error('Link not found.');
+            return;
+        }
+
+        $link->update([
+            'is_visible' => $this->links[$linkIndex]['is_visible']
+        ]);
+
+        Toaster::success('Link visibility updated successfully!');
     }
 }; ?>
 
@@ -134,57 +154,64 @@ new class extends Component {
         </div>
     @endif
 
-    <div wire:sortable="updateLinkOrder">
-        @foreach($links as $index => $link)
-            <x-card wire:key="link-{{ $link['id'] }}" wire:sortable.item="{{ $link['id'] }}" class="mb-2">
-                <div class="flex items-center justify-between">
-                    <div class="flex-grow" x-data="{ editingTitle: false, editingDescription: false }">
-                        <div class="flex items-center space-x-2">
+    <div wire:sortable="updateLinkOrder" wire:sortable.options="{ animation: 100 }">
+        @foreach ($links as $index => $link)
+            <div wire:key="link-{{ $link['id'] }}" wire:sortable.item="{{ $link['id'] }}">
+                <x-card class="mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
                             @if($link['type'] === 'custom' && $link['icon'])
                                 <img src="{{ $link['icon'] }}" alt="Site icon" class="flex-shrink-0 w-5 h-5">
                             @else
                                 <x-dynamic-component :component="'icons.' . $link['icon']" class="flex-shrink-0 w-5 h-5" />
                             @endif
-                            <div x-show="!editingTitle" @click="editingTitle = true" class="cursor-pointer">
-                                <h3 class="font-semibold">{{ $link['title'] ?: 'Click to add title' }}</h3>
+                            <div x-data="{ editingTitle: false, editingDescription: false }">
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="font-semibold">{{ $link['title'] ?: 'Click to add title' }}</h3>
+                                    <input
+                                        x-show="editingTitle"
+                                        x-trap="editingTitle"
+                                        wire:model.live="links.{{ $index }}.title"
+                                        wire:change="updateLink({{ $link['id'] }})"
+                                        @click.away="editingTitle = false"
+                                        @keydown.enter="editingTitle = false"
+                                        placeholder="Title"
+                                        class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                                    />
+                                </div>
+                                <div class="mt-1">
+                                    <p x-show="!editingDescription" @click="editingDescription = true" class="text-sm text-gray-600 cursor-pointer">
+                                        {{ $link['description'] ?: 'Click to add description' }}
+                                    </p>
+                                    <textarea
+                                        x-show="editingDescription"
+                                        x-trap="editingDescription"
+                                        wire:model.live="links.{{ $index }}.description"
+                                        wire:change="updateLink({{ $link['id'] }})"
+                                        @click.away="editingDescription = false"
+                                        placeholder="Description (Optional)"
+                                        class="w-64 px-2 py-1 mt-1 text-sm border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                                        rows="2"
+                                    ></textarea>
+                                </div>
                             </div>
-                            <input
-                                x-show="editingTitle"
-                                x-trap="editingTitle"
-                                wire:model.live="links.{{ $index }}.title"
-                                wire:change="updateLink({{ $link['id'] }})"
-                                @click.away="editingTitle = false"
-                                @keydown.enter="editingTitle = false"
-                                placeholder="Title"
-                                class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                        </div>
+                        <div class="flex items-center ml-2 space-x-2">
+                            <button wire:sortable.handle class="cursor-move">
+                                <x-lucide-move class="w-5 h-5" />
+                            </button>
+                            <button wire:click="deleteLink({{ $link['id'] }})">
+                                <x-lucide-trash-2 class="w-5 h-5 text-red-500" />
+                            </button>
+                            <x-switch
+                                wire:model.live="links.{{ $index }}.is_visible"
+                                wire:change="toggleLinkVisibility({{ $link['id'] }})"
+                                :checked="$link['is_visible']"
                             />
                         </div>
-                        <div class="mt-1">
-                            <p x-show="!editingDescription" @click="editingDescription = true" class="text-sm text-gray-600 cursor-pointer">
-                                {{ $link['description'] ?: 'Click to add description' }}
-                            </p>
-                            <textarea
-                                x-show="editingDescription"
-                                x-trap="editingDescription"
-                                wire:model.live="links.{{ $index }}.description"
-                                wire:change="updateLink({{ $link['id'] }})"
-                                @click.away="editingDescription = false"
-                                placeholder="Description (Optional)"
-                                class="w-64 px-2 py-1 mt-1 text-sm border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
-                                rows="2"
-                            ></textarea>
-                        </div>
                     </div>
-                    <div class="flex items-center ml-2 space-x-2">
-                        <button wire:sortable.handle class="cursor-move">
-                            <x-lucide-move class="w-5 h-5" />
-                        </button>
-                        <button wire:click="deleteLink({{ $link['id'] }})">
-                            <x-lucide-trash-2 class="w-5 h-5 text-red-500" />
-                        </button>
-                    </div>
-                </div>
-            </x-card>
+                </x-card>
+            </div>
         @endforeach
     </div>
 </div>

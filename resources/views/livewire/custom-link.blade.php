@@ -32,6 +32,7 @@ new class extends Component {
                 'icon' => $result['icon'] ?: null,
                 'type' => 'custom',
                 'order' => $this->linkPage->links()->count(),
+                'is_visible' => true,
             ]);
 
             $this->reset('url');

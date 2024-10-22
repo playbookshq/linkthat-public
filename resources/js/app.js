@@ -2,6 +2,7 @@ import './bootstrap';
 import collapse from "@alpinejs/collapse";
 import anchor from "@alpinejs/anchor";
 import '../../vendor/masmerise/livewire-toaster/resources/js';
+import '@wotz/livewire-sortablejs';
 
 document.addEventListener(
     "alpine:init",
