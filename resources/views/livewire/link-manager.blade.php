@@ -8,13 +8,7 @@ use Masmerise\Toaster\Toaster;
 new class extends Component {
     public LinkPage $linkPage;
     public $links = [];
-    public $newLinkType = '';
-    public $newLink = [
-        'type' => 'social',
-        'icon' => '',
-        'title' => '',
-        'description' => '',
-    ];
+    public $showSocialIcons = false;
 
     public function mount(LinkPage $linkPage)
     {
@@ -27,33 +21,55 @@ new class extends Component {
         $this->links = $this->linkPage->links()->orderBy('order')->get()->toArray();
     }
 
-    public function addLink()
+    public function toggleSocialIcons()
     {
-        $this->validate([
-            'newLink.icon' => 'required|string|max:255',
-            'newLink.title' => 'required|string|max:255',
-            'newLink.description' => 'nullable|string|max:1000',
-        ]);
+        $this->showSocialIcons = !$this->showSocialIcons;
+    }
 
-        $url = $this->generateSocialMediaUrl($this->newLink['icon'], $this->newLink['title']);
-
-        $this->linkPage->links()->create([
+    public function addSocialLink($platform)
+    {
+        $newLink = $this->linkPage->links()->create([
             'type' => 'social',
-            'url' => $url,
-            'icon' => $this->newLink['icon'],
-            'title' => $this->newLink['title'],
-            'description' => $this->newLink['description'],
+            'url' => '',
+            'icon' => $platform,
+            'title' => '',
+            'description' => '',
+            'order' => count($this->links),
         ]);
 
         $this->loadLinks();
-        $this->reset(['newLink', 'newLinkType']);
+        $this->showSocialIcons = false;
         Toaster::success('Social media link added successfully!');
+    }
+
+    public function updateLink($linkId)
+    {
+        $link = Link::findOrFail($linkId);
+        $linkIndex = array_search($linkId, array_column($this->links, 'id'));
+
+        if ($linkIndex === false) {
+            Toaster::error('Link not found.');
+            return;
+        }
+
+        $this->validate([
+            "links.{$linkIndex}.title" => 'required|string|max:255',
+            "links.{$linkIndex}.description" => 'nullable|string|max:1000',
+        ]);
+
+        $link->update([
+            'title' => $this->links[$linkIndex]['title'],
+            'description' => $this->links[$linkIndex]['description'],
+            'url' => $this->generateSocialMediaUrl($link->icon, $this->links[$linkIndex]['title']),
+        ]);
+
+        Toaster::success('Link updated successfully!');
     }
 
     private function generateSocialMediaUrl($platform, $username)
     {
         return match ($platform) {
-            'twitter' => "https://twitter.com/{$username}",
+            'x' => "https://x.com/{$username}",
             'facebook' => "https://facebook.com/{$username}",
             'instagram' => "https://instagram.com/{$username}",
             'linkedin' => "https://linkedin.com/in/{$username}",
@@ -82,55 +98,61 @@ new class extends Component {
 
 <div>
     <div class="mb-4">
-        <x-button wire:click="$set('newLinkType', 'social')">Add Social Media Link</x-button>
+        @if($showSocialIcons)
+            <div class="flex flex-wrap gap-2">
+                @foreach(['x', 'facebook', 'instagram', 'linkedin', 'youtube', 'tiktok'] as $platform)
+                    <x-button wire:click="addSocialLink('{{ $platform }}')" class="flex items-center space-x-2">
+                        <x-dynamic-component :component="'icons.' . $platform" class="w-5 h-5" />
+                        <span>Add {{ ucfirst($platform) }}</span>
+                    </x-button>
+                @endforeach
+            </div>
+        @else
+            <x-button wire:click="toggleSocialIcons">
+                <x-lucide-plus class="w-5 h-5 mr-2" />
+                Add Social Media
+            </x-button>
+        @endif
     </div>
 
-    @if($newLinkType === 'social')
-        <x-card class="mb-4">
-            <h3 class="mb-2 text-lg font-semibold">Add New Social Media Link</h3>
-            <x-form wire:submit.prevent="addLink">
-                <x-form.item>
-                    <x-label for="newLink.icon">Platform</x-label>
-                    <x-select wire:model="newLink.icon" id="newLink.icon" required>
-                        <option value="">Select a platform</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="tiktok">TikTok</option>
-                    </x-select>
-                    <x-form.message for="newLink.icon" />
-                </x-form.item>
-
-                <x-form.item>
-                    <x-label for="newLink.title">Username/Handle</x-label>
-                    <x-input wire:model="newLink.title" id="newLink.title" type="text" required />
-                    <x-form.message for="newLink.title" />
-                </x-form.item>
-
-                <x-form.item>
-                    <x-label for="newLink.description">Description (Optional)</x-label>
-                    <x-textarea wire:model="newLink.description" id="newLink.description" />
-                    <x-form.message for="newLink.description" />
-                </x-form.item>
-
-                <x-button type="submit">Add Link</x-button>
-            </x-form>
-        </x-card>
-    @endif
-
     <div wire:sortable="updateLinkOrder">
-        @foreach($links as $link)
+        @foreach($links as $index => $link)
             <x-card wire:key="link-{{ $link['id'] }}" wire:sortable.item="{{ $link['id'] }}" class="mb-2">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold">{{ $link['icon'] }} - {{ $link['title'] }}</h3>
-                        @if($link['description'])
-                            <p class="text-sm text-gray-600">{{ $link['description'] }}</p>
-                        @endif
+                    <div class="flex-grow" x-data="{ editingTitle: false, editingDescription: false }">
+                        <div class="flex items-center space-x-2">
+                            <x-dynamic-component :component="'icons.' . $link['icon']" class="flex-shrink-0 w-5 h-5" />
+                            <div x-show="!editingTitle" @click="editingTitle = true" class="cursor-pointer">
+                                <h3 class="font-semibold">{{ $link['title'] ?: 'Click to add username' }}</h3>
+                            </div>
+                            <input
+                                x-show="editingTitle"
+                                x-trap="editingTitle"
+                                wire:model.live="links.{{ $index }}.title"
+                                wire:change="updateLink({{ $link['id'] }})"
+                                @click.away="editingTitle = false"
+                                @keydown.enter="editingTitle = false"
+                                placeholder="Username/Handle"
+                                class="inline-block px-2 py-1 border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                            />
+                        </div>
+                        <div class="mt-1">
+                            <p x-show="!editingDescription" @click="editingDescription = true" class="text-sm text-gray-600 cursor-pointer">
+                                {{ $link['description'] ?: 'Click to add description' }}
+                            </p>
+                            <textarea
+                                x-show="editingDescription"
+                                x-trap="editingDescription"
+                                wire:model.live="links.{{ $index }}.description"
+                                wire:change="updateLink({{ $link['id'] }})"
+                                @click.away="editingDescription = false"
+                                placeholder="Description (Optional)"
+                                class="w-64 px-2 py-1 mt-1 text-sm border-none rounded-md outline-none bg-zinc-100 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none"
+                                rows="2"
+                            ></textarea>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center ml-2 space-x-2">
                         <button wire:sortable.handle class="cursor-move">
                             <x-lucide-move class="w-5 h-5" />
                         </button>
