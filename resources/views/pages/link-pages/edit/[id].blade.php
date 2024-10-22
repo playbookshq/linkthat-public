@@ -7,6 +7,7 @@ use App\Models\LinkPage;
 use Illuminate\Support\Facades\Auth;
 use App\Services\SeoService;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Gate;
 
 name('link-pages.edit');
 middleware(['auth']);
@@ -56,6 +57,11 @@ new class extends Component {
     public function getDashboardUrlProperty()
     {
         return route('dashboard');
+    }
+
+    public function getCanUseCustomLinksProperty()
+    {
+        return Gate::allows('use-custom-link-cards');
     }
 };
 

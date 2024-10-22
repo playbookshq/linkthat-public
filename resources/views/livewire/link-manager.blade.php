@@ -4,12 +4,14 @@ use Livewire\Volt\Component;
 use App\Models\LinkPage;
 use App\Models\Link;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Gate;
 
 new class extends Component {
     public LinkPage $linkPage;
     public $links = [];
     public $showSocialIcons = false;
-    public $showCustomLinkForm = false;
+    public $showCustomLinkInput = false;
+    public $canUseCustomLinks;
 
     protected $listeners = ['link-created' => 'handleNewLink'];
 
@@ -17,6 +19,7 @@ new class extends Component {
     {
         $this->linkPage = $linkPage;
         $this->loadLinks();
+        $this->canUseCustomLinks = Gate::allows('use-custom-link-cards');
     }
 
     public function loadLinks()
@@ -30,7 +33,6 @@ new class extends Component {
     public function handleNewLink($linkId)
     {
         $this->loadLinks();
-        $this->showCustomLinkForm = false;
     }
 
     public function toggleSocialIcons()
@@ -123,18 +125,33 @@ new class extends Component {
 
         Toaster::success('Link visibility updated successfully!');
     }
+
+    public function toggleCustomLinkInput()
+    {
+        if (!$this->canUseCustomLinks) {
+            $this->showUpgradeMessage();
+            return;
+        }
+        $this->showCustomLinkInput = !$this->showCustomLinkInput;
+    }
+
+    public function showUpgradeMessage()
+    {
+        Toaster::info('Custom link cards are available for premium users. Upgrade now to unlock this feature.');
+    }
 }; ?>
 
 <div>
-    <div class="flex items-center mb-4 space-x-4">
-        <x-button wire:click="toggleSocialIcons">
-            <x-lucide-plus class="w-5 h-5 mr-2" />
-            Add Social Media
-        </x-button>
-        <x-button wire:click="$toggle('showCustomLinkForm')">
-            <x-lucide-plus class="w-5 h-5 mr-2" />
-            Add Custom Link
-        </x-button>
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Manage Links</h2>
+        <div class="space-x-2">
+            <x-button wire:click="$toggle('showSocialIcons')" size="sm">
+                Add Social Link
+            </x-button>
+            <x-button wire:click="toggleCustomLinkInput" size="sm">
+                Add Custom URL
+            </x-button>
+        </div>
     </div>
 
     @if($showSocialIcons)
@@ -148,7 +165,7 @@ new class extends Component {
         </div>
     @endif
 
-    @if($showCustomLinkForm)
+    @if($showCustomLinkInput && $canUseCustomLinks)
         <div class="mb-4">
             <livewire:custom-link :link-page="$linkPage" />
         </div>

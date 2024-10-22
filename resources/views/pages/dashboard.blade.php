@@ -140,6 +140,17 @@ new class extends Component {
                     </div>
                 </x-modal>
             @endforeach
+
+            @unless(auth()->user()->subscribed('default'))
+                <div class="mt-6">
+                    <h2 class="text-lg font-semibold">Upgrade to Premium</h2>
+                    <p class="mt-1 text-sm text-gray-600">Get access to more LinkPages and custom link cards.</p>
+                    <form action="{{ route('subscription.create') }}" method="POST" class="mt-4">
+                        @csrf
+                        <x-button type="submit">Upgrade Now - $10/year</x-button>
+                    </form>
+                </div>
+            @endunless
         </div>
     @endvolt
 </x-layouts.app>

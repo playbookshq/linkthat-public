@@ -7,6 +7,7 @@ use App\Models\LinkPage;
 use Illuminate\Support\Facades\Auth;
 use App\Services\SeoService;
 use Masmerise\Toaster\Toaster;
+use Illuminate\Support\Facades\Gate;
 
 name('link-pages.create');
 
@@ -29,19 +30,12 @@ new class extends Component {
 
     public function save()
     {
-        try {
-            $this->validate();
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            if (isset($e->validator->failed()['username']['Unique'])) {
-                Toaster::error('This username is already taken. Please choose a different one.');
-            }
-            throw $e;
-        }
+        $this->validate();
 
         $user = Auth::user();
 
-        if ($user->linkPages()->count() >= 2 && !$user->subscribed()) {
-            Toaster::error('Free tier users are limited to 2 LinkPages.');
+        if (Gate::denies('create-link-page')) {
+            Toaster::error('You have reached the maximum number of LinkPages for your plan.');
             return;
         }
 
