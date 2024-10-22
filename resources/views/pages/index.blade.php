@@ -3,7 +3,7 @@ use function Laravel\Folio\{name};
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 
-name('dashboard');
+name('home');
 
 new class extends Component {
     // dashboard logic
@@ -11,11 +11,13 @@ new class extends Component {
 ?>
 
 <x-layouts.app>
-    @volt('pages.dashboard')
+    @volt('pages.home')
+    <div>
         <x-card class="space-y-6">
-                <x-heading size="lg">Welcome to your new dashboard</x-heading>
+                <x-heading size="lg">Welcome to home</x-heading>
                 <x-subheading>Let's get started in the <x-link href="/playground">playground.</x-link>
                 </x-subheading>
         </x-card>
+    </div>
     @endvolt
 </x-layouts.app>

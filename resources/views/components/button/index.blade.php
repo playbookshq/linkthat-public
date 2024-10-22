@@ -2,13 +2,22 @@
     'variant' => null,
     'size' => null,
     'type' => 'button',
+    'href' => null,
 ])
 
 @inject('button', 'App\Services\ButtonCvaService')
 
-<button
-    type="{{ $type }}"
-    {{ $attributes->twMerge($button(['variant' => $variant, 'size' => $size])) }}
->
+@php
+    $tag = $href ? 'a' : 'button';
+    $attrs = $attributes->twMerge($button(['variant' => $variant, 'size' => $size]));
+
+    if ($href) {
+        $attrs = $attrs->merge(['href' => $href]);
+    } else {
+        $attrs = $attrs->merge(['type' => $type]);
+    }
+@endphp
+
+<{{ $tag }} {{ $attrs }}>
     {{ $slot }}
-</button>
+</{{ $tag }}>

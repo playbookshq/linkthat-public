@@ -12,6 +12,11 @@
         <a
             class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
             wire:navigate
+            href="{{ route('dashboard') }}"
+        >Dashboard</a>
+        <a
+            class="px-3 py-2 transition-colors rounded-lg hover:bg-zinc-100 hover:text-foreground/80 text-foreground/60"
+            wire:navigate
             href="/"
         >Example 1</a>
         <a
