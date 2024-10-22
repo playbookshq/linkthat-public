@@ -8,10 +8,10 @@
     <input
         type="checkbox"
         id="{{ $id }}"
-        {{ $attributes->twMerge('peer rounded text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50') }}
+        {{ $attributes->twMerge('peer rounded text-black disabled:cursor-not-allowed disabled:opacity-50') }}
     />
     @if ($label)
-        <label for="{{ $id }}" class="ml-2 text-sm cursor-pointer text-zinc-700 dark:text-zinc-300">
+        <label for="{{ $id }}" class="ml-2 text-sm text-gray-700 cursor-pointer">
             {{ $label }}
         </label>
     @endif

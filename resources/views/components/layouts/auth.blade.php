@@ -32,7 +32,7 @@ $seo = app(SeoService::class);
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 
-<body class="flex items-center justify-center max-w-md min-h-screen m-auto bg-white dark:bg-zinc-900">
+<body class="flex items-center justify-center max-w-md min-h-screen m-auto bg-white">
     <div class="w-full">
         {{ $slot }}
     </div>

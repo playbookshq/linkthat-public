@@ -98,15 +98,6 @@ new class extends Component {
                                 <x-form.message for="description" />
                             </x-form.item>
 
-                            <x-form.item>
-                                <x-label for="theme">Theme</x-label>
-                                <x-select wire:model="theme" id="theme">
-                                    <option value="light">Light</option>
-                                    <option value="dark">Dark</option>
-                                </x-select>
-                                <x-form.message for="theme" />
-                            </x-form.item>
-
                             <x-button type="submit" class="w-full">Update LinkPage</x-button>
                         </x-card.content>
                     </x-card>

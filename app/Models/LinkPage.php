@@ -28,4 +28,9 @@ class LinkPage extends Model
     {
         return $this->hasMany(Link::class);
     }
+
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(Block::class);
+    }
 }
